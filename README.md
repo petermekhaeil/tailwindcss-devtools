@@ -1,6 +1,6 @@
 # tailwindcss-devtools
 
-DevTool Extension for Tailwind CSS development.
+DevTool Extension for UI development using Tailwind CSS.
 
 ## Getting Started
 
