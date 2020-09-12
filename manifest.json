@@ -1,0 +1,16 @@
+{
+  "name": "Tailwind CSS DevTools",
+  "version": "1.0",
+  "description": "",
+  "devtools_page": "devtools.html",
+  "background": {
+    "scripts": ["public/background.js"]
+  },
+  "icons": {
+    "16": "public/icon-16x16.png",
+    "48": "public/icon-32x32.png",
+    "128": "public/icon-192x192.png"
+  },
+  "permissions": ["tabs", "http://*/*", "https://*/*"],
+  "manifest_version": 2
+}

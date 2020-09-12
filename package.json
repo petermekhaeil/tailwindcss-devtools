@@ -1,0 +1,37 @@
+{
+  "name": "tailwindcss-devtools",
+  "version": "0.1.0",
+  "description": "DevTool Extension for UI development using Tailwind CSS.",
+  "main": "index.js",
+  "dependencies": {
+    "@fullhuman/postcss-purgecss": "^2.3.0",
+    "sirv-cli": "^1.0.6"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "dlv": "^1.1.3",
+    "glob": "^7.1.6",
+    "npm-run-all": "^4.1.5",
+    "postcss-cli": "^7.1.2",
+    "rollup": "^2.26.11",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^6.0.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "svelte": "^3.25.0",
+    "tailwindcss": "^1.8.8"
+  },
+  "scripts": {
+    "autobuild": "rollup -c -w",
+    "build": "npm run build:plugins && npm run build:tailwind && rollup -c",
+    "build:plugins": "node scripts/build.js",
+    "build:tailwind": "NODE_ENV=production postcss public/tailwind.css -o public/index.css",
+    "dev": "run-p start:dev autobuild watch:tailwind",
+    "start": "sirv public",
+    "start:dev": "sirv public --dev",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch:tailwind": "postcss public/tailwind.css -o public/index.css -w"
+  },
+  "author": "Peter Mekhaeil <mekhaeil.peter@gmail.com>",
+  "license": "MIT"
+}
