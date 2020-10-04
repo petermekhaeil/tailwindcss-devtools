@@ -1,11 +1,16 @@
 <script>
   import { onMount } from "svelte";
-  import { kebabToTitleCase, stringifyProperties } from "./lib";
+  import { debounce, kebabToTitleCase, stringifyProperties } from "./lib";
+
+  import Heading from "./Heading.svelte";
+  import Search from "./Search.svelte";
 
   const jsonUrl = "./build/plugins.json";
 
   let data = [];
+  let filteredList = [];
   let selectedClasses = {};
+  let searchValue = "";
 
   function updateSelectedElement() {
     chrome?.devtools?.inspectedWindow?.eval("setSelectedElement($0)", {
@@ -48,6 +53,7 @@
   onMount(async function () {
     const response = await fetch(jsonUrl);
     data = await response.json();
+    filteredList = data;
     connectToChrome();
   });
 
@@ -71,57 +77,64 @@
   function transformSelector(selector) {
     return selector.split(/[>:]/)[0].trim();
   }
+
+  function filterResults() {
+    debounce(() => {
+      filteredList = data.filter((item) => {
+        return item.plugin.indexOf(searchValue) !== -1;
+      });
+    }, 750)();
+  }
 </script>
 
-<main class="w-full mx-auto px-6">
-  {#each data as item}
-    {#if Object.keys(item.utilities).length > 0}
-      <h2 class="mt-4 mb-6 mx-auto text-sm">{kebabToTitleCase(item.plugin)}</h2>
-      <div class="w-full mx-auto">
-        <div class="mt-0 border-t overflow-hidden relative">
-          <div
-            class="overflow-y-auto scrollbar-w-2 scrollbar-track-gray-lighter
-              scrollbar-thumb-rounded scrollbar-thumb-gray scrolling-touch">
-            <table class="w-full text-left table-collapse">
-              <thead>
-                <tr>
-                  <th
-                    class="z-20 sticky top-0 font-semibold text-gray-700
-                      bg-gray-100 p-0">
-                    <div class="p-2 border-b border-gray-300">Class</div>
-                  </th>
-                  <th
-                    class="z-20 sticky top-0 font-semibold text-gray-700
-                      bg-gray-100 p-0">
-                    <div class="p-2 border-b border-gray-300">Properties</div>
-                  </th>
+<main class="w-full mx-auto px-6 mt-3">
+  <Search bind:value={searchValue} onKeyUp={filterResults} />
+  {#each filteredList as item}
+    <Heading>{kebabToTitleCase(item.plugin)}</Heading>
+    <div class="w-full mx-auto">
+      <div class="mt-0 border-t overflow-hidden relative">
+        <div
+          class="overflow-y-auto scrollbar-w-2 scrollbar-track-gray-lighter
+            scrollbar-thumb-rounded scrollbar-thumb-gray scrolling-touch">
+          <table class="w-full text-left table-collapse">
+            <thead>
+              <tr>
+                <th
+                  class="z-20 sticky top-0 font-semibold text-gray-700
+                    bg-gray-100 p-0">
+                  <div class="p-2 border-b border-gray-300">Class</div>
+                </th>
+                <th
+                  class="z-20 sticky top-0 font-semibold text-gray-700
+                    bg-gray-100 p-0">
+                  <div class="p-2 border-b border-gray-300">Properties</div>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="align-baseline">
+              {#each Object.keys(item.utilities) as selector}
+                <tr class="border-b border-gray-300">
+                  <td
+                    class="p-2 font-mono text-xs text-purple-700
+                      whitespace-no-wrap">
+                    <label class="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        on:change={(e) => handleChange(e, selector)}
+                        bind:checked={selectedClasses[selector.substr(1)]} />
+                      <span class="ml-2">{transformSelector(selector)}</span>
+                    </label>
+                  </td>
+                  <td
+                    class="p-2 font-mono text-xs text-blue-700 whitespace-pre">
+                    {stringifyProperties(item.utilities[selector])}
+                  </td>
                 </tr>
-              </thead>
-              <tbody class="align-baseline">
-                {#each Object.keys(item.utilities) as selector}
-                  <tr class="border-b border-gray-300">
-                    <td
-                      class="p-2 font-mono text-xs text-purple-700
-                        whitespace-no-wrap">
-                      <label class="inline-flex items-center">
-                        <input
-                          type="checkbox"
-                          on:change={(e) => handleChange(e, selector)}
-                          bind:checked={selectedClasses[selector.substr(1)]} />
-                        <span class="ml-2">{transformSelector(selector)}</span>
-                      </label>
-                    </td>
-                    <td
-                      class="p-2 font-mono text-xs text-blue-700 whitespace-pre">
-                      {stringifyProperties(item.utilities[selector])}
-                    </td>
-                  </tr>
-                {/each}
-              </tbody>
-            </table>
-          </div>
+              {/each}
+            </tbody>
+          </table>
         </div>
       </div>
-    {/if}
+    </div>
   {/each}
 </main>

@@ -6,7 +6,6 @@ const { defaultConfig } = require("./defaultConfig");
 
 // https://github.com/tailwindlabs/tailwindcss.com/blob/master/src/utils/corePluginsWithExamples.js
 const plugins = [
-  "container",
   ...glob
     .sync("node_modules/tailwindcss/lib/plugins/*.js")
     .map((filename) => path.basename(filename, ".js")),
